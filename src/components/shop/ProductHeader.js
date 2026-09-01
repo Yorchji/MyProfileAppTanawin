@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors } from '../../styles/colors';
 import { styles } from '../../styles/shopStyles';
 
-const ProductHeader = ({ search, onSearchChange, onAddPress, activeCategory, onFilterPress }) => {
+const ProductHeader = ({ search, onSearchChange, onAddPress, activeCategory, onFilterPress, canManage, user, onLogout }) => {
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <StatusBar barStyle="light-content" backgroundColor={colors.primary} />
@@ -13,17 +13,20 @@ const ProductHeader = ({ search, onSearchChange, onAddPress, activeCategory, onF
         <View style={styles.headerBlobOne} />
         <View style={styles.headerBlobTwo} />
 
-        <TouchableOpacity style={styles.menuButton}>
-          <Text style={styles.menuIcon}>☰</Text>
-        </TouchableOpacity>
+        <View style={styles.menuButton}><Text style={styles.menuIcon}>{user?.role === 'admin' ? 'A' : 'U'}</Text></View>
 
         <View>
           <Text style={styles.headerTitle}>🏸 ร้านไม้แบด</Text>
-          <Text style={styles.headerSubtitle}>อุปกรณ์แบดมินตันครบวงจร</Text>
+          <Text style={styles.headerSubtitle}>{user?.username} • {canManage ? 'ผู้ดูแลระบบ' : 'ผู้ใช้งาน'}</Text>
         </View>
 
-        <TouchableOpacity style={styles.profileButton}>
-          <Text style={styles.profileIcon}>👤</Text>
+        <TouchableOpacity
+          style={styles.profileButton}
+          onPress={onLogout}
+          accessibilityRole="button"
+          accessibilityLabel="ออกจากระบบ"
+        >
+          <Text style={styles.logoutButtonText}>ออกจากระบบ</Text>
         </TouchableOpacity>
       </View>
 
@@ -40,9 +43,7 @@ const ProductHeader = ({ search, onSearchChange, onAddPress, activeCategory, onF
           />
         </View>
 
-        <TouchableOpacity style={styles.addButton} onPress={onAddPress}>
-          <Text style={styles.addButtonText}>+ เพิ่มสินค้า</Text>
-        </TouchableOpacity>
+        {canManage ? <TouchableOpacity style={styles.addButton} onPress={onAddPress}><Text style={styles.addButtonText}>+ เพิ่มสินค้า</Text></TouchableOpacity> : null}
       </View>
 
       <View style={styles.filterRow}>

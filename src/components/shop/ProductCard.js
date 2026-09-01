@@ -6,7 +6,7 @@ import { colors } from '../../styles/colors';
 import { styles } from '../../styles/shopStyles';
 import { buildImageSource } from '../../utils/image';
 
-const ProductCard = ({ product, onEdit }) => {
+const ProductCard = ({ product, onEdit, canManage }) => {
   const [imageFailed, setImageFailed] = useState(false);
   const [imageLoading, setImageLoading] = useState(Boolean(product.image));
 
@@ -31,7 +31,7 @@ const ProductCard = ({ product, onEdit }) => {
   const hasImage = Boolean(product.image) && !imageFailed;
 
   return (
-    <TouchableOpacity style={styles.card} onPress={() => onEdit?.(product)} activeOpacity={0.85}>
+    <TouchableOpacity style={styles.card} onPress={() => canManage && onEdit?.(product)} activeOpacity={canManage ? 0.85 : 1}>
       <View style={styles.cardImageWrap}>
         {hasImage ? (
           <>
@@ -70,9 +70,7 @@ const ProductCard = ({ product, onEdit }) => {
         </View>
       </View>
 
-      <View style={styles.cardEditButton}>
-        <Text style={styles.cardEditButtonText}>✎</Text>
-      </View>
+      {canManage ? <View style={styles.cardEditButton}><Text style={styles.cardEditButtonText}>✎</Text></View> : null}
     </TouchableOpacity>
   );
 };

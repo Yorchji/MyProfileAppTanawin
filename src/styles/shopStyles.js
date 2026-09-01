@@ -93,15 +93,16 @@ export const styles = StyleSheet.create({
     marginTop: 2,
   },
   profileButton: {
-    width: 38,
     height: 38,
-    backgroundColor: colors.accent,
+    paddingHorizontal: 12,
+    backgroundColor: colors.accentDark,
     borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  profileIcon: {
-    fontSize: 16,
+  logoutButtonText: {
+    fontSize: 12,
+    fontWeight: '700',
     color: colors.white,
   },
 
@@ -397,6 +398,13 @@ export const styles = StyleSheet.create({
     backgroundColor: 'rgba(15, 23, 42, 0.5)',
     justifyContent: 'flex-end',
   },
+  modalBackdrop: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0,
+  },
   modalCard: {
     backgroundColor: colors.surface,
     borderTopLeftRadius: 24,
@@ -503,6 +511,16 @@ export const styles = StyleSheet.create({
   submitButtonText: {
     color: colors.white,
     fontSize: 14,
+    fontWeight: '800',
+  },
+  deleteButton: {
+    alignItems: 'center',
+    paddingVertical: 14,
+    marginTop: 8,
+  },
+  deleteButtonText: {
+    color: colors.danger,
+    fontSize: 13,
     fontWeight: '800',
   },
 

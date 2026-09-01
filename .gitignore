@@ -4,4 +4,23 @@
 
 expo-env.d.ts
 # @end expo-cli
-node_modules
+# Dependencies
+node_modules/
+
+# Expo / React Native generated files
+.expo/
+dist/
+web-build/
+
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+
+# Logs and test output
+*.log
+coverage/
+
+# Operating-system files
+.DS_Store
+Thumbs.db

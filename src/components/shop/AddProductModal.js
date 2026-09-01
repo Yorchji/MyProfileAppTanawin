@@ -1,14 +1,14 @@
 import { useEffect, useState } from 'react';
 import {
-  Keyboard,
+  Alert,
   KeyboardAvoidingView,
   Modal,
   Platform,
+  Pressable,
   ScrollView,
   Text,
   TextInput,
   TouchableOpacity,
-  TouchableWithoutFeedback,
   View,
 } from 'react-native';
 import { Image } from 'expo-image';
@@ -53,7 +53,7 @@ const normalizeImageUrl = (rawValue) => {
 
 const isLikelyImageUrl = (value) => /^https?:\/\/.+/i.test(value.trim());
 
-const AddProductModal = ({ visible, onClose, onSubmit, initialProduct }) => {
+const AddProductModal = ({ visible, onClose, onSubmit, onDelete, initialProduct, submitting }) => {
   const isEditing = Boolean(initialProduct);
 
   const [name, setName] = useState('');
@@ -98,6 +98,7 @@ const AddProductModal = ({ visible, onClose, onSubmit, initialProduct }) => {
 
   const handleSubmit = () => {
     const cleanedUrl = normalizeImageUrl(imageUrl);
+    const existingIcon = initialProduct && initialProduct.icon ? initialProduct.icon : '🏸';
 
     const nextErrors = {};
     if (!name.trim()) nextErrors.name = 'กรุณากรอกชื่อสินค้า';
@@ -117,27 +118,44 @@ const AddProductModal = ({ visible, onClose, onSubmit, initialProduct }) => {
     // (บางลิงก์โหลดช้า หรือแพลตฟอร์มพรีวิวคนละตัวกับตอนแสดงผลจริง)
     // เพื่อไม่ให้รูปที่ถูกต้องหายไปเฉย ๆ ตอนกดบันทึก
     onSubmit({
-      id: initialProduct?.id ?? Date.now().toString(),
+      // สินค้าใหม่ต้องไม่มี id เพื่อให้หน้าหลักเรียก POST /products
+      // แล้วใช้ id ที่ฐานข้อมูลสร้างกลับมา ไม่เช่นนั้นจะถูกส่งไปแก้ไขสินค้า
+      // ที่ยังไม่มีอยู่ (PUT /products/:id) แทน
+      ...(initialProduct ? { id: initialProduct.id } : {}),
       name: name.trim(),
       category: category.trim() || 'สินค้าทั่วไป',
       price: Number(price),
       image: cleanedUrl ? cleanedUrl : null,
-      icon: CATEGORY_ICONS[category.trim()] || initialProduct?.icon || '🏸',
+      icon: CATEGORY_ICONS[category.trim()] || existingIcon,
     });
 
-    resetForm();
+  };
+
+  const handleDelete = () => {
+    const message = `ต้องการลบ “${initialProduct.name}” ใช่หรือไม่?`;
+
+    // Alert ของ React Native Web ไม่รองรับปุ่มยืนยันแบบ Android/iOS
+    // จึงใช้กล่องยืนยันของเบราว์เซอร์เพื่อให้ลบสินค้าได้จริงบนเว็บ
+    if (Platform.OS === 'web') {
+      if (globalThis.confirm(message)) onDelete?.(initialProduct);
+      return;
+    }
+
+    Alert.alert('ยืนยันการลบสินค้า', `ต้องการลบ “${initialProduct.name}” ใช่หรือไม่?`, [
+      { text: 'ยกเลิก', style: 'cancel' },
+      { text: 'ลบสินค้า', style: 'destructive', onPress: () => onDelete?.(initialProduct) },
+    ]);
   };
 
   return (
     <Modal visible={visible} animationType="slide" transparent onRequestClose={handleClose}>
-      <TouchableWithoutFeedback onPress={handleClose}>
-        <View style={styles.modalOverlay}>
-          <TouchableWithoutFeedback onPress={() => {}}>
-            <KeyboardAvoidingView
-              behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-              style={{ width: '100%' }}
-            >
-              <View style={styles.modalCard}>
+      <View style={styles.modalOverlay}>
+        <Pressable style={styles.modalBackdrop} onPress={handleClose} />
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          style={{ width: '100%' }}
+        >
+          <View style={styles.modalCard}>
                 <View style={styles.modalHandle} />
 
                 <View style={styles.modalHeaderRow}>
@@ -148,8 +166,7 @@ const AddProductModal = ({ visible, onClose, onSubmit, initialProduct }) => {
                 </View>
 
                 <ScrollView keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
-                  <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-                    <View>
+                  <View>
                       {/* Image preview */}
                       <View style={styles.previewWrap}>
                         {imageUrl.trim() && isLikelyImageUrl(normalizeImageUrl(imageUrl)) && !imageFailed ? (
@@ -222,19 +239,17 @@ const AddProductModal = ({ visible, onClose, onSubmit, initialProduct }) => {
                       />
                       {errors.price ? <Text style={styles.fieldError}>{errors.price}</Text> : null}
 
-                      <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
+                      <TouchableOpacity style={styles.submitButton} onPress={handleSubmit} disabled={submitting}>
                         <Text style={styles.submitButtonText}>
-                          {isEditing ? '✓ บันทึกการแก้ไข' : '+ เพิ่มสินค้า'}
+                          {submitting ? 'กำลังบันทึก...' : isEditing ? '✓ บันทึกการแก้ไข' : '+ เพิ่มสินค้า'}
                         </Text>
                       </TouchableOpacity>
-                    </View>
-                  </TouchableWithoutFeedback>
+                      {isEditing ? <TouchableOpacity style={styles.deleteButton} onPress={handleDelete} disabled={submitting}><Text style={styles.deleteButtonText}>ลบสินค้านี้</Text></TouchableOpacity> : null}
+                  </View>
                 </ScrollView>
-              </View>
-            </KeyboardAvoidingView>
-          </TouchableWithoutFeedback>
-        </View>
-      </TouchableWithoutFeedback>
+          </View>
+        </KeyboardAvoidingView>
+      </View>
     </Modal>
   );
 };

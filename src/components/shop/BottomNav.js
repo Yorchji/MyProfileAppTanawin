@@ -11,7 +11,7 @@ const navItems = [
   { key: 'categories', icon: '🏷️', label: 'หมวดหมู่' },
 ];
 
-const BottomNav = ({ onAddPress, onHomePress }) => {
+const BottomNav = ({ onAddPress, onHomePress, canManage }) => {
   const [active, setActive] = useState('rackets');
   const insets = useSafeAreaInsets();
 
@@ -27,9 +27,10 @@ const BottomNav = ({ onAddPress, onHomePress }) => {
     setActive(item.key);
   };
 
+  const visibleItems = canManage ? navItems : navItems.filter((item) => item.key !== 'add');
   return (
     <View style={[styles.bottomNav, { paddingBottom: Math.max(insets.bottom, 10) }]}>
-      {navItems.map((item) => {
+      {visibleItems.map((item) => {
         const isActive = active === item.key;
         return (
           <TouchableOpacity

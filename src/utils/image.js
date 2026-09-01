@@ -21,6 +21,5 @@ export const proxyImageUrl = (uri) => {
 // ห่อลิงก์รูปให้เป็น source object พร้อม header ที่เหมาะสม ใช้ได้ทั้งกับ
 // AddProductModal (พรีวิว) และ ProductCard (แสดงในรายการ)
 export const buildImageSource = (uri) => ({
-  uri: proxyImageUrl(uri),
-  headers: IMAGE_REQUEST_HEADERS,
+  uri,
 });
