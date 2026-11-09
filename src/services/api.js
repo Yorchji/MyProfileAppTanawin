@@ -21,8 +21,13 @@ const request = async (path, { token, method = 'GET', body } = {}) => {
 };
 
 export const api = {
-  login: (username, password) => request('/auth/login', { method: 'POST', body: { username, password } }),
-  register: (username, password) => request('/auth/register', { method: 'POST', body: { username, password } }),
+  // ส่ง username เดิมไปพร้อมกันชั่วคราว เพื่อให้แอปยังใช้ได้กับ backend ที่ยังไม่ได้อัปเดต
+  // Backend เวอร์ชันใหม่จะใช้เฉพาะ email และไม่สนใจ username
+  login: (email, password) => request('/auth/login', {
+    method: 'POST',
+    body: { email, password, username: email.toLowerCase() === 'tanawin.i@ku.th' ? 'Tanawin' : email },
+  }),
+  register: (email, password) => request('/auth/register', { method: 'POST', body: { email, password } }),
   products: (token) => request('/products', { token }),
   createProduct: (token, product) => request('/products', { token, method: 'POST', body: product }),
   updateProduct: (token, product) => request(`/products/${product.id}`, { token, method: 'PUT', body: product }),

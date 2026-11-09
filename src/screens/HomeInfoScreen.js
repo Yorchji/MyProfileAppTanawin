@@ -43,7 +43,7 @@ const HomeInfoScreen = ({ onEnterShop }) => {
           </View>
 
           <Text style={styles.heroEmoji}>🏸</Text>
-          <Text style={styles.heroTitle}>ร้านไม้แบด</Text>
+          <Text style={styles.heroTitle}>Minton Store</Text>
           <Text style={styles.heroSubtitle}>
             แอปจัดการร้านอุปกรณ์แบดมินตัน{'\n'}เพิ่ม แสดง และค้นหาสินค้าได้ในที่เดียว
           </Text>

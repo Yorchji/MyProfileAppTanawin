@@ -2,12 +2,12 @@
 -- ตารางผู้ใช้: role เป็น admin หรือ user เท่านั้น
 CREATE TABLE IF NOT EXISTS users (
   id INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  username VARCHAR(50) NOT NULL,
+  email VARCHAR(254) NOT NULL,
   password_hash VARCHAR(255) NOT NULL,
   role ENUM('admin', 'user') NOT NULL DEFAULT 'user',
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
-  UNIQUE KEY users_username_unique (username)
+  UNIQUE KEY users_email_unique (email)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS products (
@@ -24,8 +24,8 @@ CREATE TABLE IF NOT EXISTS products (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- บัญชีผู้ดูแลเริ่มต้น
--- username: Tanawin | password: Tanawin12345
+-- email: Tanawin.i@ku.th | password: Tanawin12345
 -- เปลี่ยนรหัสผ่านนี้ทันทีหลังใช้งานครั้งแรก
-INSERT INTO users (username, password_hash, role)
-VALUES ('Tanawin', '$2b$10$PKEPfsvQLnFJTohTA8dJw.4EgOAj.r5DEomWAzM8YySOLZHBRl8he', 'admin')
-ON DUPLICATE KEY UPDATE username = username;
+INSERT INTO users (email, password_hash, role)
+VALUES ('Tanawin.i@ku.th', '$2b$10$PKEPfsvQLnFJTohTA8dJw.4EgOAj.r5DEomWAzM8YySOLZHBRl8he', 'admin')
+ON DUPLICATE KEY UPDATE email = email;

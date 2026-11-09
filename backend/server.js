@@ -31,7 +31,7 @@ app.use(cors());
 app.use(express.json({ limit: '100kb' }));
 
 const createToken = (user) => jwt.sign(
-  { id: user.id, username: user.username, role: user.role },
+  { id: user.id, email: user.email, role: user.role },
   process.env.JWT_SECRET,
   { expiresIn: `${tokenTtlHours}h` },
 );
@@ -67,7 +67,7 @@ const productValues = (body) => {
 };
 
 const toProduct = (row) => ({
-  id: String(row.id), name: row.name, category: row.category, price: Number(row.price),
+  id: String(row.id), name: row.name, category: row.category, price: Number(row.price), stock: Number(row.stock),
   image: row.image_url, icon: row.icon,
 });
 
@@ -82,34 +82,34 @@ app.get('/api/health', async (_req, res) => {
 
 app.post('/api/auth/register', async (req, res, next) => {
   try {
-    const username = String(req.body.username || '').trim();
+    const email = String(req.body.email || '').trim().toLowerCase();
     const password = String(req.body.password || '');
-    if (!/^[A-Za-z0-9_.-]{3,50}$/.test(username)) return res.status(400).json({ message: 'ชื่อผู้ใช้ต้องเป็นอังกฤษ/ตัวเลข 3–50 ตัวอักษร' });
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 254) return res.status(400).json({ message: 'กรุณากรอกอีเมลให้ถูกต้อง' });
     if (password.length < 8) return res.status(400).json({ message: 'รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร' });
     const passwordHash = await bcrypt.hash(password, 12);
-    const [result] = await pool.execute('INSERT INTO users (username, password_hash, role) VALUES (?, ?, \'user\')', [username, passwordHash]);
-    const user = { id: result.insertId, username, role: 'user' };
+    const [result] = await pool.execute('INSERT INTO users (email, password_hash, role) VALUES (?, ?, \'user\')', [email, passwordHash]);
+    const user = { id: result.insertId, email, role: 'user' };
     return res.status(201).json({ token: createToken(user), user });
   } catch (error) {
-    if (error.code === 'ER_DUP_ENTRY') return res.status(409).json({ message: 'ชื่อผู้ใช้นี้ถูกใช้แล้ว' });
+    if (error.code === 'ER_DUP_ENTRY') return res.status(409).json({ message: 'อีเมลนี้ถูกใช้แล้ว' });
     return next(error);
   }
 });
 
 app.post('/api/auth/login', async (req, res, next) => {
   try {
-    const username = String(req.body.username || '').trim();
+    const email = String(req.body.email || '').trim().toLowerCase();
     const password = String(req.body.password || '');
-    const [rows] = await pool.execute('SELECT id, username, password_hash, role FROM users WHERE username = ? LIMIT 1', [username]);
+    const [rows] = await pool.execute('SELECT id, email, password_hash, role FROM users WHERE email = ? LIMIT 1', [email]);
     const user = rows[0];
-    if (!user || !(await bcrypt.compare(password, user.password_hash))) return res.status(401).json({ message: 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง' });
-    return res.json({ token: createToken(user), user: { id: user.id, username: user.username, role: user.role } });
+    if (!user || !(await bcrypt.compare(password, user.password_hash))) return res.status(401).json({ message: 'อีเมลหรือรหัสผ่านไม่ถูกต้อง' });
+    return res.json({ token: createToken(user), user: { id: user.id, email: user.email, role: user.role } });
   } catch (error) { return next(error); }
 });
 
 app.get('/api/products', auth, async (_req, res, next) => {
   try {
-    const [rows] = await pool.query('SELECT id, name, category, price, image_url, icon FROM products ORDER BY created_at DESC, id DESC');
+    const [rows] = await pool.query('SELECT id, name, category, price, stock, image_url, icon FROM products ORDER BY created_at DESC, id DESC');
     return res.json(rows.map(toProduct));
   } catch (error) { return next(error); }
 });

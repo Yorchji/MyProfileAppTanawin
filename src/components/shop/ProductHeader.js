@@ -13,10 +13,10 @@ const ProductHeader = ({ search, onSearchChange, onAddPress, activeCategory, onF
         <View style={styles.headerBlobOne} />
         <View style={styles.headerBlobTwo} />
 
-        <View style={styles.menuButton}><Text style={styles.menuIcon}>{user?.role === 'admin' ? 'A' : 'U'}</Text></View>
+        <View style={styles.menuButton}><Text style={styles.menuIcon}>{user?.role === 'admin' ? 'M' : 'U'}</Text></View>
 
         <View>
-          <Text style={styles.headerTitle}>🏸 ร้านไม้แบด</Text>
+          <Text style={styles.headerTitle}>🏸 Minton store</Text>
           <Text style={styles.headerSubtitle}>{user?.username} • {canManage ? 'ผู้ดูแลระบบ' : 'ผู้ใช้งาน'}</Text>
         </View>
 
